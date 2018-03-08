@@ -1,9 +1,6 @@
 #include "taylor.h"
-#include <stdio.h>
 
 const int PRECISION = 13;
-
-//const double PI = 3.141592653589793238462643383279502884;
 
 //Taylor approximation for sin
 double tsin(double x){
