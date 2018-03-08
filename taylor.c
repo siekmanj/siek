@@ -1,9 +1,9 @@
-#include <stdio.h>
 #include "taylor.h"
+#include <stdio.h>
 
-const int PRECISION = 10;
-const unsigned long MAX_LONG = 4294967295;
-const double PI = 3.141592653589793238462643383279502884;
+const int PRECISION = 13;
+
+//const double PI = 3.141592653589793238462643383279502884;
 
 //Taylor approximation for sin
 double tsin(double x){
@@ -54,23 +54,18 @@ double tsqrt(double x){
 	long double sum = 0;
 	unsigned long a;
 	
-	for(a = 0; (a+1)*(a+1) < x; a++);
-	double d = x - a*a;
-	
+	for(a = 1; a*a <= x; a++);
+	long double d = x - a*a;
 	for(int n = 0; n < PRECISION; n++){
-		long double numerator;
+		long double numerator = 1;
+		if(n & 1) numerator = -1;
 		long double denominator;
-		if(n & 1){
-			numerator = -1;
-		}else{
-			numerator = 1;
-		}
-		numerator *= (double)factorial(2*n) * power(d, n);
+	
+		numerator *= (long double)factorial(2*n) * (long double)power(d, n);
 		denominator = (1-2*n)*(double)factorial(n)*factorial(n)*power(4, n)*power(a, 2*n);
-		
 		sum += numerator/denominator;
 	}
-	return sum*a;
+	return sum * a; 
 }
 
 //Calculates x^p, only works for integer powers
