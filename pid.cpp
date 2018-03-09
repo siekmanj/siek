@@ -13,10 +13,10 @@ pid::pid(double kp, double ki, double kd){
 
 double pid::calculateOutput(double tick, double setpoint, double position){
 	double deltaT = tick - lastTick;
-	
+
     double error = setpoint - position;
     integral += error * deltaT;
-	
+
 	double derivative;
 	if(deltaT == 0){
 		derivative = 0;
@@ -30,10 +30,10 @@ double pid::calculateOutput(double tick, double setpoint, double position){
 }
 double pid::calculateOutput(double tick, double setpoint, double position, double velocity){
 	int deltaT = tick - lastTick;
-	
+
 	double error = setpoint - position;
     integral += error * deltaT;
-	
+
     double derivative;
 	if(deltaT == 0){
 		derivative = 0;
