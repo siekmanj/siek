@@ -42,42 +42,47 @@ double t_cos(double x){
 }
 
 //Taylor approximation for tan
-double ttan(double x){
-	return tsin(x)/tcos(x);
+double t_tan(double x){
+	return t_sin(x)/t_cos(x);
 }
 
-//Taylor approximation for square root
+//Taylor approximation for square root (still fairly inaccurate for values less than 0.5)
 double t_sqrt(double x){
 	long double sum = 0;
 	unsigned long a;
-	for(a = 1; a*a <= x; a++);
-	long double d = x - a*a;
+	for(a = 1; a*a <= x; a++); //Increment until we get a square that is larger than x
+	long double d = x - a*a; //Find the difference between the square and x
+
+	if(absolute(x - (a-1)*(a-1)) < 0.00001){ //If the square before a is roughly equal to x,
+		return a-1; // then return that instead of doing a ton of work
+	}
+
 	for(int n = 0; n < PRECISION; n++){
-		long double numerator = (long double)factorial(2*n) * (long double)power(d, n);
+		long double numerator = (long double)factorial(2*n) * (long double)power(d, n); //(-1)^n * (2n)! * d^n
 		if(n & 1) numerator *= -1;
 
-		long double denominator = (1-2*n)*(double)factorial(n)*factorial(n)*power(4, n)*power(a, 2*n);
+		long double denominator = (1-2*n)*(double)factorial(n)*factorial(n)*power(4, n)*power(a, 2*n); //(1-2n)*(n!)^2*(4^n)*(a^2n)
+
 		sum += numerator/denominator;
 	}
 	sum *= a;
-	/*if(sum <= 4 && sum >= 1){ //This sum is fairly inaccurate compared to the standard sqrt for numbers between 1 and 4
-		long double difference = sum*sum - x;
-		printf("diff: %Lf\n", difference/(a));
-		return sum - difference;
-	}*/
 	return sum;
 }
 
 //Technically not a Taylor approximation, but still a series that approximates atan
 double t_atan(double x){
-	assert(x < 1 && x > -1);
-	double sum = 0;
-	for(int n = 0; n < PRECISION; n++){
-		long double numerator = power(x, 2*n+1);
-		if(n & 1) numerator *= -1;
-		sum += numerator / (2*n+1);
-	}
-	return sum;
+		double sum = 0;
+		for(int n = 0; n < PRECISION; n++){
+			long double numerator = power(x, 2*n+1);
+			if(n & 1) numerator *= -1;
+			sum += numerator / (2*n+1);
+		}
+		return sum;
+}
+
+double absolute(double x){
+	if(x < 0) return -1*x;
+	else return x;
 }
 
 //Calculates x^p, only works for integer powers
