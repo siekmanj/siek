@@ -53,12 +53,10 @@ double t_sqrt(double x){
 	for(a = 1; a*a <= x; a++);
 	long double d = x - a*a;
 	for(int n = 0; n < PRECISION; n++){
-		long double numerator = 1;
-		if(n & 1) numerator = -1;
-		long double denominator;
+		long double numerator = (long double)factorial(2*n) * (long double)power(d, n);
+		if(n & 1) numerator *= -1;
 
-		numerator *= (long double)factorial(2*n) * (long double)power(d, n);
-		denominator = (1-2*n)*(double)factorial(n)*factorial(n)*power(4, n)*power(a, 2*n);
+		long double denominator = (1-2*n)*(double)factorial(n)*factorial(n)*power(4, n)*power(a, 2*n);
 		sum += numerator/denominator;
 	}
 	sum *= a;
@@ -70,9 +68,16 @@ double t_sqrt(double x){
 	return sum;
 }
 
-//Taylor approximation for atan
+//Technically not a Taylor approximation, but still a series that approximates atan
 double t_atan(double x){
-	
+	assert(x < 1 && x > -1);
+	double sum = 0;
+	for(int n = 0; n < PRECISION; n++){
+		long double numerator = power(x, 2*n+1);
+		if(n & 1) numerator *= -1;
+		sum += numerator / (2*n+1);
+	}
+	return sum;
 }
 
 //Calculates x^p, only works for integer powers
