@@ -79,36 +79,45 @@ double t_exp(double x){
 	}
 	return sum;
 }
+double t_atan2(double y, double x){
+	double arc_tangent = t_atan(y/x);
+	if(x < 0){
+		if(arc_tangent < 0) arc_tangent += PI;
+		if(arc_tangent > 0) arc_tangent -= PI;
+	}
+	return arc_tangent;
+}
 //Technically not a Taylor approximation, but still a series that approximates atan (badly)
-double t_atan(double y, double x){
+double t_atan(double x){
 		double sum = 0;
-		double z = y/x;
 		int inversion = 1;
 
-		//If y > x, the infinite series will diverge and we will get an unreasonable number.
-		//To account for this, we swap y/x to x/y. This essentially mirrors the angle to the other side of the 45-degree line.
-		//We then have to subtract the sum from pi/2, instead of adding it to 0.
-		int invert = 0;
-		if(y > x){
-			z = x/y;
+		//If abs(x) > 1, the infinite series will diverge and we will get an unreasonable number.
+		//To account for this, we swap x to 1/x. This essentially mirrors the angle to the other side of the 45-degree line.
+		//If that doesn't make sense, think of it as y/x -> x/y.
+		//We then have to subtract the sum from +/- pi/2, instead of adding it to 0.
+		if(x > 1){
+			x = 1/x;
 			sum = PI/2;
 			inversion = -1;
 		}
+		//Also need to account for x < -1 for same reason
+		if(x < -1){
+			x = 1/x;
+			sum = -PI/2;
+			inversion = -1;
+		}
 
-		//Special case when y/x == 1
-		if(absolute(z - 1) < 0.000001) return PI/4;
-		if(absolute(z + 1) < 0.000001) return -PI/4;
-
+		//Special case when x is close to 1 (precision tends to be very poor for values close to 1)
+		if(absolute(x - 1) < 0.000001) return PI/4;
+		if(absolute(x + 1) < 0.000001) return -PI/4;
 
 		for(int n = 0; n < PRECISION; n++){
-			long double numerator = power(z, 2*n+1);//*power(2, 2*n)*power((long double)factorial(n), 2);
-			if(n & 1) numerator *= -1;
-			long double denominator = (2*n+1);//(long double)factorial(2*n+1)*power((1+power(x, 2)), n+1);
+			long double numerator = power(x, 2*n+1); //x^2n+1
+			if(n & 1) numerator *= -1; //(-1)^n
+			long double denominator = (2*n+1);
 
 			sum += inversion * numerator / denominator;
-			//printf("x^2*n+1: %f^2*%d+1 = %Lf\n", x, n, numerator);
-			//printf("___________________________________________  = %Lf\n\n", numerator/denominator);
-			//printf("2*n+1: 2*%d+1 = %Lf\n\n\n", n, denominator);
 		}
 		return sum;
 }
