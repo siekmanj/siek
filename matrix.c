@@ -71,15 +71,41 @@ void rref(double **matrix, int rows, int cols){
   }
 }
 
-void determinant(double **matrix, int rows, int cols){
-  assert(rows == cols);
-  if(rows = 1){
+double determinant(double **matrix, int rows, int cols){
+  if(rows == 1){
     return matrix[0][0];
   }else if(rows == 2){
     return matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0];
   }
 
+  double sum = 0;
 
+  for(int r = 0; r < rows; r++){
+    int c = 0;
+    double** zoom = create_matrix(rows-1, cols-1);
+
+    //Transcribe the rows*columns matrix into an (rows-1)*(columns-1) matrix, ignoring row r and column c
+    for(int i = 0; i < rows; i++){
+      for(int j = 0; j < cols; j++){
+        int x = j;
+        int y = i;
+        if(i != r && j != c){
+          if(j > c) x = j-1;
+          if(i > r) y = i-1;
+          zoom[x][y] = matrix[i][j];
+        }
+      }
+    }
+    double det = determinant(zoom, rows-1, cols-1);
+    free_matrix(zoom, rows-1, cols-1);
+    
+    if((r+1)+(c+1) & 1){
+      sum -= matrix[r][c] * det;
+    }else{
+      sum += matrix[r][c] * det;
+    }
+  }
+  return sum;
 }
 
 int is_rref(double **matrix, int rows, int cols){

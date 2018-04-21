@@ -6,7 +6,8 @@ double** matrix_from_static_array(int rows, int cols, double input[][cols]); //M
 void free_matrix(double **matrix, int rows, int cols); //Deallocate the memory of the matrix
 
 void rref(double** matrix, int rows, int cols); //Convert a matrix to rref
-void determinant(double** matrix, int rows, int cols); //Calculate the determinant of a matrix
+
+double determinant(double** matrix, int rows, int cols); //Calculate the determinant of a matrix
 
 void print_matrix(double **matrix, int rows, int cols); //Prints a matrix to the terminal
 
