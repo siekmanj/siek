@@ -1,2 +1,2 @@
 # siek
-Things I've written that I tend to reuse a lot in projects.
+Things I've written related to math classes or research projects I've done in the past.
