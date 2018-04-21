@@ -1,6 +1,10 @@
+/*
+ * Jonah Siekmann 3/24/2018
+ * Calculates various math functions using series approximations
+*/
 #include "./taylor.h"
 #include <stdio.h>
-const int PRECISION = 15;
+const int PRECISION = 10;
 const long double PI = 3.1415926535897932384626433832795028841971693993751058209;
 
 //Taylor approximation for sin
@@ -82,12 +86,13 @@ double t_exp(double x){
 double t_atan2(double y, double x){
 	double arc_tangent = t_atan(y/x);
 	if(x < 0){
-		if(arc_tangent < 0) arc_tangent += PI;
-		if(arc_tangent > 0) arc_tangent -= PI;
+		if(arc_tangent < 0) arc_tangent += PI; // quadrant 2
+		if(arc_tangent > 0) arc_tangent -= PI; // quadrant 3
 	}
 	return arc_tangent;
 }
-//Technically not a Taylor approximation, but still a series that approximates atan (badly)
+//Technically not a Taylor approximation, but still a series that approximates atan
+//This is faster than the standard C implementation, and has the same accuracy
 double t_atan(double x){
 		double sum = 0;
 		int inversion = 1;
