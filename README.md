@@ -1,2 +1,2 @@
 # siek
-Things I've written related to math classes or research projects I've done in the past.
+This is a collection of files written in C, C++, and eventually maybe Python that I might reuse between projects and school assignments. Rather than rewrite these files from scratch every time, or searching through old projects to copy and paste code, I intend to use this repository to catalog modular chunks of code. You can look at the wiki for some more detailed information about what each file is for.
