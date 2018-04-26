@@ -32,10 +32,10 @@ class Matrix{
     Matrix(double (&arr)[r][c]){
       this->rows = r;
       this->cols = c;
-      this->matrix = (double **)malloc(rows*sizeof(double *)); //Allocate row number of pointers
-      for(int i = 0; i < r; i++){
-        matrix[i] = (double *)malloc(cols*sizeof(double)); //create a double for every column in each row
-        for(int j = 0; j < c; j++){
+      this->matrix = new double*[rows]; //Allocate row number of pointers the size of
+      for(int i = 0; i < rows; i++){
+        matrix[i] = new double[cols]; //create a double for every column in each row
+        for(int j = 0; j < cols; j++){
           matrix[i][j] = arr[i][j];
         }
       }

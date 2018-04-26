@@ -6,9 +6,9 @@
 Matrix::Matrix(int rows, int cols){
   this->rows = rows;
   this->cols = cols;
-  this->matrix = (double **)malloc(rows*sizeof(double *)); //Allocate row number of pointers the size of
+  this->matrix = new double*[rows]; //Allocate row number of pointers the size of
   for(int i = 0; i < rows; i++){
-    matrix[i] = (double *)malloc(cols*sizeof(double)); //create a double for every column in each row
+    matrix[i] = new double[cols]; //create a double for every column in each row
     for(int j = 0; j < cols; j++){
       matrix[i][j] = 0;
     }
@@ -17,9 +17,9 @@ Matrix::Matrix(int rows, int cols){
 Matrix::Matrix(const Matrix& m){
   this->rows = m.rows;
   this->cols = m.cols;
-  this->matrix = (double **)malloc(rows*sizeof(double *)); //Allocate row number of pointers the size of
+  this->matrix = new double*[rows]; //Allocate row number of pointers the size of
   for(int i = 0; i < rows; i++){
-    matrix[i] = (double *)malloc(cols*sizeof(double)); //create a double for every column in each row
+    matrix[i] = new double[cols]; //create a double for every column in each row
     for(int j = 0; j < cols; j++){
       matrix[i][j] = m.matrix[i][j];
     }
@@ -28,11 +28,9 @@ Matrix::Matrix(const Matrix& m){
 
 Matrix::~Matrix(){
   for(int i = 0; i < rows; i++){
-    free(matrix[i]);
+    delete [] matrix[i];
   }
-  free(matrix);
-  free(&rows);
-  free(&cols);
+  delete [] matrix;
 }
 Matrix Matrix::operator+(const Matrix& m) const{
   if(this->cols != m.cols || this->rows != m.rows) throw "Incompatible matrix dimensions.";
