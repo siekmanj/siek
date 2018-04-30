@@ -12,6 +12,7 @@ class Matrix{
     Matrix operator-(const Matrix& m) const;
     Matrix operator*(const Matrix& m) const;
     Matrix operator*(double num) const;
+    Matrix operator*(int num) const;
     Matrix inverse();
     Matrix cofactor();
     Matrix transpose();
@@ -24,6 +25,7 @@ class Matrix{
     void setIndex(double num, int r, int c);
 
     void printMatrix();
+    int is_rref();
 
     ~Matrix();
 
@@ -43,12 +45,12 @@ class Matrix{
 
 
   private:
-    int is_rref();
     double** matrix;
     int rows;
     int cols;
 };
 Matrix operator*(double k, const Matrix& m);
+Matrix operator*(int k, const Matrix& m);
 
 /*
 double** create_matrix(int rows, int cols); //2D array containing a row*column matrix.

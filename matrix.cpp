@@ -1,14 +1,16 @@
 #include "./matrix.h"
 #include <stdio.h>
-
-
+#include <iostream>
+#include <unistd.h>
+using std::cout;
+using std::endl;
 
 Matrix::Matrix(int rows, int cols){
   this->rows = rows;
   this->cols = cols;
-  this->matrix = new double*[rows]; //Allocate row number of pointers the size of
+  this->matrix = new double*[rows]; //Allocate pointers each the size of a row
   for(int i = 0; i < rows; i++){
-    matrix[i] = new double[cols]; //create a double for every column in each row
+    matrix[i] = new double[cols]; //create a double for every number in each row
     for(int j = 0; j < cols; j++){
       matrix[i][j] = 0;
     }
@@ -17,9 +19,9 @@ Matrix::Matrix(int rows, int cols){
 Matrix::Matrix(const Matrix& m){
   this->rows = m.rows;
   this->cols = m.cols;
-  this->matrix = new double*[rows]; //Allocate row number of pointers the size of
+  this->matrix = new double*[rows]; //Allocate pointers each the size of a row
   for(int i = 0; i < rows; i++){
-    matrix[i] = new double[cols]; //create a double for every column in each row
+    matrix[i] = new double[cols]; //create a double for every number in each row
     for(int j = 0; j < cols; j++){
       matrix[i][j] = m.matrix[i][j];
     }
@@ -32,6 +34,7 @@ Matrix::~Matrix(){
   }
   delete [] matrix;
 }
+
 Matrix Matrix::operator+(const Matrix& m) const{
   if(this->cols != m.cols || this->rows != m.rows) throw "Incompatible matrix dimensions.";
   Matrix result = Matrix(this->rows, this->cols);
@@ -42,6 +45,7 @@ Matrix Matrix::operator+(const Matrix& m) const{
   }
   return result;
 }
+
 Matrix Matrix::operator-(const Matrix& m) const{
   if(this->cols != m.cols || this->rows != m.rows) throw "Incompatible matrix dimensions.";
   Matrix result = Matrix(this->rows, this->cols);
@@ -59,8 +63,8 @@ Matrix Matrix::operator*(const Matrix& m) const{
   for(int i = 0; i < rows; i++){
     for(int j = 0; j < m.cols; j++){
       double sum = 0;
-      for(int x = 0; x < m.rows; x++){
-        sum += matrix[i][x] * m.matrix[x][j];
+      for(int k = 0; k < m.rows; k++){
+        sum += matrix[i][k] * m.matrix[k][j];
       }
       result.matrix[i][j] = sum;
     }
@@ -69,6 +73,15 @@ Matrix Matrix::operator*(const Matrix& m) const{
 }
 
 Matrix Matrix::operator*(double num) const{
+  Matrix result = Matrix(rows, cols);
+  for(int i = 0; i < rows; i++){
+    for(int j = 0; j < cols; j++){
+      result.matrix[i][j] = matrix[i][j] * num;
+    }
+  }
+  return result;
+}
+Matrix Matrix::operator*(int num) const{
   Matrix result = Matrix(rows, cols);
   for(int i = 0; i < rows; i++){
     for(int j = 0; j < cols; j++){
@@ -89,28 +102,55 @@ Matrix operator*(double num, const Matrix& m){
   }
   return result;
 }
-Matrix Matrix::rref(){
+Matrix operator*(int num, const Matrix& m){
+  double rows = m.getRows();
+  double cols = m.getCols();
   Matrix result = Matrix(rows, cols);
-  while(!is_rref() && cols == rows+1){
+  for(int i = 0; i < rows; i++){
+    for(int j = 0; j < cols; j++){
+      result.setIndex(m.getIndex(i, j)*num, i, j);
+    }
+  }
+  return result;
+}
+
+Matrix Matrix::rref(){
+  Matrix result = Matrix(*this);
+  while(!result.is_rref() && cols > rows){
+    int pivotx = 0;
+    int pivoty = 0;
     int x1 = 0; //element to cancel out
     int y1 = 0;
     int y2 = 0; //row to use when doing arithmetic
     double coef = 0;
 
-    //Find a non-zero, non-diagonal element
-    for(int j = 0; j < cols-1; j++){
-      for(int i = 0; i < rows; i++){
-        if(result.matrix[i][j] != 0 && i != j){
-          y1 = i;
-          x1 = j;
-          coef = result.matrix[i][j];
-          goto brk; //Don't tell anybody
+    //If the column currently being considered is a linear combination
+    //of any other column, then it is not a pivot column and doesn't need direct correction.
+    //Basically, need to find the leading number in a row and then clear its column.
+
+    //Finding the leading number:
+    for(int i = 0; i < rows; i++){
+      for(int j = 0; j < cols; j++){
+        if(result.matrix[i][j] != 0){
+          pivoty = i;
+          pivotx = j;
+          //Checking to see if that column has any other numbers in it
+          for(int k = 0; k < rows; k++){
+            if(result.matrix[k][j] != 0 && k!=i){
+              //If it does, we'll need to make that the number to eliminate.
+              y1 = k;
+              x1 = j;
+              coef = result.matrix[k][j];
+              goto brk; //Don't tell anybody
+            }
+          }
+          break; //Don't check the rest of the row
         }
       }
     }
     brk:;
 
-    //Find a non-zero number in the same column
+    //Find any non-zero number in the same column
     for(int i = rows-1; i >= 0; i--){
       int j = x1;
       if(result.matrix[i][j] != 0 && i != y1){
@@ -125,15 +165,15 @@ Matrix Matrix::rref(){
       result.matrix[y1][j] = result.matrix[y1][j] - result.matrix[y2][j] * coef;
     }
 
-    //If the diagonal entry is not equal to 1, divide everything in its row by the diagonal entry.
-    if(result.matrix[y1][y1] != 1){
+    //If the pivot entry is not equal to 1, divide everything in its row by the pivot entry.
+    if(result.matrix[pivoty][pivotx] != 1){
       for(int j = 0; j < cols; j++){
-        if(j != y1){ //Don't divide the diagonal entry yet, as its value can't change until after everything else
-          result.matrix[y1][j] /= result.matrix[y1][y1];
+        if(j != pivoty){ //Don't divide the pivot entry yet, as its value can't change until after everything else
+          result.matrix[pivoty][j] /= result.matrix[pivoty][pivotx];
         }
       }
     }
-    result.matrix[y1][y1] = 1;
+    result.matrix[pivoty][pivotx] = 1; //Finally apply the division to the pivot entry, which has to be one.
   }
   return result;
 }
@@ -156,7 +196,7 @@ Matrix Matrix::cofactor(){
           }
         }
       }
-      if(i + j & 1){
+      if(i + j & 1){ //Determine sign of cofactor entry
         result.matrix[i][j] = -submatrix.determinant();
       }else{
         result.matrix[i][j] = submatrix.determinant();
@@ -176,9 +216,7 @@ Matrix Matrix::transpose(){
 }
 
 Matrix Matrix::inverse(){
-  Matrix result = Matrix(*this).cofactor().transpose() * (1.0/determinant());
-
-  return result;
+  return Matrix(*this).cofactor().transpose() * (1.0/determinant());
 }
 double Matrix::determinant(){
   if(rows != cols){
@@ -210,7 +248,7 @@ double Matrix::determinant(){
     }
     double det = submatrix.determinant();
 
-    if((r+1)+(c+1) & 1){
+    if(r+c & 1){
       sum -= matrix[r][c] * det;
     }else{
       sum += matrix[r][c] * det;
@@ -219,10 +257,23 @@ double Matrix::determinant(){
   return sum;
 }
 int Matrix::is_rref(){
+  //First entry for a row must be 1
+  //That column must contain only that one and zeroes
   for(int i = 0; i < rows; i++){
-    for(int j = 0; j < cols-1; j++){
-      if(matrix[i][j] != 0 && i != j){
-        return 0;
+    for(int j = 0; j < cols; j++){
+      if(matrix[i][j] == 1){
+        for(int k = 0; k < rows; k++){ //Check the rest of the column
+          if(k!=i && matrix[k][j] != 0){
+            return 0;
+          }
+        }
+        break;
+      }else if(j == cols-1){
+        for(int k = 0; k < cols; k++){
+          if(matrix[i][k] != 0){
+            return 0;
+          }
+        }
       }
     }
   }
