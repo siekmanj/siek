@@ -71,26 +71,55 @@ void setOutputs(Neuron** layer, float** outputs, size_t size){
 void calculateOutputs(Neuron** layer1, size_t layer_one_size, Neuron** layer2, size_t layer_two_size){
 	for(int i = 0; i < layer_two_size; i++){
 		for(int j = 0; j < layer_two_size; j++){
-			int sum = 0;
-			Neuron current = layer2[i][j];
+			float sum = 0;
+			Neuron *current = &layer2[i][j];
 			for(int k = 0; k < layer_one_size; k++){
 				for(int l = 0; l < layer_one_size; l++){
 						sum += layer1[k][l].output * layer2[i][j].weights[k][l];
+						printf("%f + ", layer1[k][l].output);
 				}
 			}
-			current.output = sum;	
+			printf("= %f\n", sum);
+			current->output = sum;	
+		}
+	}
+}
+
+void printOutputs(Neuron** layer, size_t size){
+	for(int i = 0; i < size; i++){
+		for(int j = 0; j < size; j++){
+			printf("%f, ", layer[i][j].output);
+		}
+		printf("\n");
+	}
+}
+
+const int RANGE = 7;
+int main(){
+	srand(time(NULL));
+	size_t input_layer_size = 28;
+	size_t hidden_layer_size = 16;
+	size_t output_layer_size = 10;
+
+	Neuron** input_layer = create_layer(input_layer_size, 0);
+	Neuron** hidden_layer = create_layer(hidden_layer_size, input_layer_size);
+	Neuron** hidden_layer2 = create_layer(hidden_layer_size, input_layer_size);
+	Neuron** output_layer = create_layer(output_layer_size, hidden_layer_size);
+
+	float **inputs = (float**)malloc(input_layer_size*sizeof(float*));
+	for(int k = 0; k < input_layer_size; k++){
+		inputs[k] = (float*)malloc(input_layer_size*sizeof(float));
+		for(int l = 0; l < input_layer_size; l++){
+			inputs[k][l] = ((float)(rand()%RANGE)-(RANGE)/2.0)/100;
 		}
 	}
 
-}
+	setOutputs(input_layer, inputs, input_layer_size);
 
-int main(){
-	srand(time(NULL));
-	size_t input_layer_size = 4;
-	size_t hidden_layer_size = 5;
-	size_t output_layer_size = 4;
-	Neuron** input_layer = create_layer(input_layer_size, 0);
-	Neuron** hidden_layer = create_layer(hidden_layer_size, input_layer_size);
-	Neuron** output_layer = create_layer(output_layer_size, hidden_layer_size);
 	calculateOutputs(input_layer, input_layer_size, hidden_layer, hidden_layer_size);	
+	printOutputs(hidden_layer, hidden_layer_size);
 }	
+
+
+
+
